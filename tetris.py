@@ -39,37 +39,176 @@ Bleu_ciel = pygame.transform.scale(Bleu_ciel, dimmension_carres)
 Orange = pygame.image.load("carre_orange.png").convert()
 Orange = pygame.transform.scale(Orange, dimmension_carres)
 
-Barre = [[(0, 0, 0, 1),
+Barre = [[(1, 1, 1, 1),
+         (0, 0, 0, 0),
+         (0, 0, 0, 0),
+         (0, 0, 0, 0)],
+         
+        [(0, 0, 0, 1),
          (0, 0, 0, 1),
          (0, 0, 0, 1),
          (0, 0, 0, 1)],
-
-         [(0, 0, 0, 0),
-         (0, 0, 0, 0),
-         (0, 0, 0, 0),
-         (1, 1, 1, 1)],
          
-        [(1, 0, 0, 0),
-         (1, 0, 0, 0),
-         (1, 0, 0, 0),
-         (1, 0, 0, 0)],
+        [(1, 1, 1, 1),
+         (0, 0, 0, 0),
+         (0, 0, 0, 0),
+         (0, 0, 0, 0)],
          
-         [(1,1, 1, 1),
-         (0, 0, 0, 0),
-         (0, 0, 0, 0),
-         (0, 0, 0, 0)],]
-etat_barre = 0
-L = [(1, 1, 1, 1),
+        [(0, 0, 0, 1),
+         (0, 0, 0, 1),
+         (0, 0, 0, 1),
+         (0, 0, 0, 1)]]
+L = [[(1, 1, 1, 1),
      (0, 0, 0, 1),
      (0, 0, 0, 0),
-     (0, 0, 0, 0)]
+     (0, 0, 0, 0)],
+
+     [(0, 0, 0, 1),
+     (0, 0, 0, 1),
+     (0, 0, 0, 1),
+     (0, 0, 1, 1)],
+
+    [(1, 0, 0, 0),
+     (1, 1, 1, 1),
+     (0, 0, 0, 0),
+     (0, 0, 0, 0)],
+
+     [(1, 1, 0, 0),
+     (1, 0, 0, 0),
+     (1, 0, 0, 0),
+     (1, 0, 0, 0)]]
+Bloc = [[(0, 0, 0, 0),
+          (0, 0, 0, 0), 
+          (0, 0, 1, 1),
+          (0, 0, 1, 1)],
+          
+        [(0, 0, 0, 0),
+          (0, 0, 0, 0), 
+          (0, 0, 1, 1),
+          (0, 0, 1, 1)],
+
+        [(0, 0, 0, 0),
+          (0, 0, 0, 0), 
+          (0, 0, 1, 1),
+          (0, 0, 1, 1)],
+        
+        [(0, 0, 0, 0),
+          (0, 0, 0, 0), 
+          (0, 0, 1, 1),
+          (0, 0, 1, 1)],]
+Coin = [[(1, 1, 0, 0),
+         (1, 0, 0, 0),
+         (0, 0, 0, 0),
+         (0, 0, 0, 0)],
+         
+        [(1, 1, 0, 0),
+         (0, 1, 0, 0),
+         (0, 0, 0, 0),
+         (0, 0, 0, 0)],
+         
+        [(0, 1, 0, 0),
+         (1, 1, 0, 0),
+         (0, 0, 0, 0),
+         (0, 0, 0, 0)],
+
+        [(1, 0, 0, 0),
+         (1, 1, 0, 0),
+         (0, 0, 0, 0),
+         (0, 0, 0, 0)],]
+Double_coin = [[(0, 1, 0, 0),
+                (1, 1, 1, 0), 
+                (0, 0, 0, 0),
+                (0, 0, 0, 0)],
+
+                [(0, 1, 0, 0),
+                (0, 1, 1, 0), 
+                (0, 1, 0, 0),
+                (0, 0, 0, 0)],
+
+                [(0, 0, 0, 0),
+                (1, 1, 1, 0), 
+                (0, 1, 0, 0),
+                (0, 0, 0, 0)],
+
+                [(0, 1, 0, 0),
+                (1, 1, 0, 0), 
+                (0, 1, 0, 0),
+                (0, 0, 0, 0)]]
+Pont = [[(1, 1, 1, 1),
+         (1, 0, 1, 0),
+         (0, 0, 0, 0),
+         (0, 0, 0, 0)],
+
+         [(1, 1, 0, 0),
+          (0, 1, 0, 0),
+          (1, 1, 0, 0),
+          (0, 1, 0, 0),],
+
+          [(0, 1, 0, 1),
+          (1, 1, 1, 1),
+          (0, 0, 0, 0),
+          (0, 0, 0, 0)],
+
+          [(0, 1, 0, 0),
+           (0, 1, 1, 0),
+           (0, 1, 0, 0),
+           (0, 1, 1, 0)]]
+S = [[(0, 1, 1, 0),
+      (1, 1, 0, 0),
+      (0, 0, 0, 0),
+      (0, 0, 0, 0)],
+
+      [ (1, 0, 0, 0),
+        (1, 1, 0, 0), 
+        (0, 1, 0, 0),
+        (0, 0, 0, 0)],
+
+       [(1, 1, 0, 0),
+        (0, 1, 1, 0), 
+        (0, 0, 0, 0),
+        (0, 0, 0, 0)],
+
+       [(0, 1, 0, 0),
+        (1, 1, 0, 0), 
+        (1, 0, 0, 0),
+        (0, 0, 0, 0)],]
+Gros_bloc = [[(1, 1, 0, 0),
+              (1, 1, 0, 0),
+              (1, 1, 0, 0),
+              (0, 0, 0, 0)],
+
+              [(1, 1, 1, 0),
+              (1, 1, 1, 0),
+              (0, 0, 0, 0),
+              (0, 0, 0, 0)],
+
+              [(1, 1, 0, 0),
+              (1, 1, 0, 0),
+              (1, 1, 0, 0),
+              (0, 0, 0, 0)],
+              
+              [(1, 1, 1, 0),
+              (1, 1, 1, 0),
+              (0, 0, 0, 0),
+              (0, 0, 0, 0)]]
+
+class Blocs:
+    def __init__(self, x, types):
+        self.x = x
+        self.y = -5
+        self.type = types
+
+etat_barre = 0
+
 
 x = True
 tempo = 0
 X = 100
 Y = -5
 ok = True
+ok_bis = True
 chrono_pour_touche = 0
+chrono_pour_touche_bis = 0
 while x:
     # bla 
     # bla 
@@ -85,50 +224,43 @@ while x:
         x = False
 
     screen.fill((100, 0, 205))
-    screen.blit(Vert, (100,25))        
-    screen.blit(Rouge, (100,65))        
-    screen.blit(Orange, (100,105))        
-    screen.blit(Bleu, (100,145))    
-    screen.blit(Bleu_ciel, (100,185))        
-    screen.blit(Rose, (100,225))   
-    screen.blit(Jaune, (100, 265)) 
 
-
-    if tempo%60 == 0 and Y + 9 < 505:
-        Y += 10
+    if tempo%60 == 0 and Y + 9 < 505 and (not keys[pygame.K_DOWN] or Y + 40 > 505):
+        Y += 10                                     # Quand on arrive en bas la pièce descend plus lentement 
     if keys[pygame.K_UP] and ok:
         etat_barre += 1    
         ok = False
     if keys[pygame.K_DOWN] and ok and Y + 40 < 505:
-        Y += 40   
+        Y += 60   
         ok = False
-    if keys[pygame.K_LEFT] and ok:
+    if keys[pygame.K_LEFT] and ok_bis:
         X -= 20  
-        ok = False
-    if keys[pygame.K_RIGHT] and ok:
+        ok_bis = False
+    if keys[pygame.K_RIGHT] and ok_bis:
         X += 20    
-        ok = False
+        ok_bis = False
 
     for i in range(4):
         for u in range(4):
-            if Barre[etat_barre%4][i][u] == 1:
-                screen.blit(Vert, (X+u*20,Y+i*20))       
-    for i in range(4):
-        for u in range(4):
-            if L[i][u] == 1:
-                screen.blit(Rouge, (X+u*20+150,Y+i*20))  
+            if Gros_bloc[etat_barre%4][i][u] == 1:
+                screen.blit(Bleu_ciel, (X+u*20,Y+i*20))       
 
-    pygame.draw.line(screen, (255, 255, 255), (350, 20), (350, 590), 5)
-    pygame.draw.line(screen, (255, 255, 255), (20, 20), (20, 590), 5)
-    pygame.draw.line(screen, (255, 255, 255), (20, 590), (350, 590), 5)
+    pygame.draw.line(screen, (255, 255, 255), (343, 20), (343, 590), 5)
+    pygame.draw.line(screen, (255, 255, 255), (18, 20), (18, 590), 5)
+    pygame.draw.line(screen, (255, 255, 255), (18, 590), (343, 590), 5)
 
 
     pygame.display.flip()
     if not ok:
         chrono_pour_touche += 1
-    if chrono_pour_touche == 20:
+    if chrono_pour_touche == 12:
         ok = True
         chrono_pour_touche = 0
+    if not ok_bis:
+        chrono_pour_touche_bis += 1
+    if chrono_pour_touche_bis == 6:
+        ok_bis = True
+        chrono_pour_touche_bis = 0
 
     tempo += 1
     if tempo == 61:
