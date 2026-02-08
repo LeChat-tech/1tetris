@@ -193,14 +193,54 @@ Gros_bloc = [[(1, 1, 0, 0),
               (0, 0, 0, 0)]]
 
 class Blocs:
-    def __init__(self, x, types):
+    def __init__(self, x, types, color):
         self.x = x
         self.y = -5
         self.type = types
+        self.color = color
+        self.etat = 0
+        self.active = True
+        self.ok = True
+        self.ok_bis = True
+        self.chrono = 0
+        self.chrono_bis = 0
+    def draw(self):
+        for i in range(4):
+            for u in range(4):
+                if self.type[self.etat%4][i][u] == 1:
+                    screen.blit(self.color, (self.x+u*20,self.y+i*20))  
+    def update(self):
+        if not self.ok:
+            self.chrono += 1
+        if self.chrono == 12:
+            self.ok = True
+            self.chrono = 0
 
+        if not self.ok_bis:
+            self.chrono_bis += 1
+        if self.chrono_bis == 6:
+            self.ok_bis = True
+            self.chrono_bis = 0
+
+        if self.active:
+            if tempo%60 == 0 and self.y + 9 < 505 and not keys[pygame.K_DOWN]:
+                self.y += 10                                     # Quand on arrive en bas la pièce descend plus lentement 
+            if keys[pygame.K_UP] and self.ok:
+                self.etat += 1    
+                self.ok = False
+            if keys[pygame.K_DOWN] and self.y + 20 < 505:
+                self.y += 20   
+            if keys[pygame.K_LEFT] and self.ok_bis:
+                self.x -= 20  
+                self.ok_bis = False
+            if keys[pygame.K_RIGHT] and self.ok_bis:
+                self.x += 20    
+                self.ok_bis = False
+    
+PIECE = [None] * 100
 etat_barre = 0
-
-
+nb_pieces = 1
+PIECE[0] = Blocs(120, Pont, Orange)
 x = True
 tempo = 0
 X = 100
@@ -223,44 +263,20 @@ while x:
     if keys[pygame.K_r]:  # pour arrêter la boucle avec la touche 'r'
         x = False
 
-    screen.fill((100, 0, 205))
 
-    if tempo%60 == 0 and Y + 9 < 505 and (not keys[pygame.K_DOWN] or Y + 40 > 505):
-        Y += 10                                     # Quand on arrive en bas la pièce descend plus lentement 
-    if keys[pygame.K_UP] and ok:
-        etat_barre += 1    
-        ok = False
-    if keys[pygame.K_DOWN] and ok and Y + 40 < 505:
-        Y += 60   
-        ok = False
-    if keys[pygame.K_LEFT] and ok_bis:
-        X -= 20  
-        ok_bis = False
-    if keys[pygame.K_RIGHT] and ok_bis:
-        X += 20    
-        ok_bis = False
-
-    for i in range(4):
-        for u in range(4):
-            if Gros_bloc[etat_barre%4][i][u] == 1:
-                screen.blit(Bleu_ciel, (X+u*20,Y+i*20))       
-
+    screen.fill((100, 0, 205))    
     pygame.draw.line(screen, (255, 255, 255), (343, 20), (343, 590), 5)
     pygame.draw.line(screen, (255, 255, 255), (18, 20), (18, 590), 5)
     pygame.draw.line(screen, (255, 255, 255), (18, 590), (343, 590), 5)
 
-
+    for i in range(nb_pieces):
+        PIECE[i].update()
+        PIECE[i].draw()
+    if PIECE[nb_pieces-1].y > 500:
+        PIECE[nb_pieces] = Blocs(300, Coin, Rose)
+        PIECE[nb_pieces-1].active = False
+        nb_pieces += 1
     pygame.display.flip()
-    if not ok:
-        chrono_pour_touche += 1
-    if chrono_pour_touche == 12:
-        ok = True
-        chrono_pour_touche = 0
-    if not ok_bis:
-        chrono_pour_touche_bis += 1
-    if chrono_pour_touche_bis == 6:
-        ok_bis = True
-        chrono_pour_touche_bis = 0
 
     tempo += 1
     if tempo == 61:
