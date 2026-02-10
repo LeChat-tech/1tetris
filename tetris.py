@@ -1,6 +1,7 @@
 import pygame
 import os                                       
 os.chdir(os.path.dirname(__file__))  
+from random import randint
 # Initialisation de Pygame
 pygame.init()
 pygame.font.init()
@@ -14,7 +15,7 @@ font = pygame.font.SysFont('Arial', 20)
 largeur = 500
 hauteur = 600
 screen = pygame.display.set_mode((largeur, hauteur))
-pygame.display.set_caption('Utilisation de Clock')
+pygame.display.set_caption('Tétris')
 
 clock = pygame.time.Clock()
 dimmension_carres = (20, 20)  
@@ -58,25 +59,44 @@ Barre = [[(1, 1, 1, 1),
          (0, 0, 0, 1),
          (0, 0, 0, 1),
          (0, 0, 0, 1)]]
-L = [[(1, 1, 1, 1),
-     (0, 0, 0, 1),
-     (0, 0, 0, 0),
-     (0, 0, 0, 0)],
+L_pair = [[ (0, 1, 1, 1),
+            (0, 0, 0, 1),
+            (0, 0, 0, 0),
+            (0, 0, 0, 0)],
 
      [(0, 0, 0, 1),
      (0, 0, 0, 1),
-     (0, 0, 0, 1),
-     (0, 0, 1, 1)],
+     (0, 0, 1, 1),
+     (0, 0, 0, 0)],
 
-    [(1, 0, 0, 0),
-     (1, 1, 1, 1),
+    [(0, 1, 0, 0),
+     (0, 1, 1, 1),
      (0, 0, 0, 0),
      (0, 0, 0, 0)],
 
-     [(1, 1, 0, 0),
-     (1, 0, 0, 0),
-     (1, 0, 0, 0),
-     (1, 0, 0, 0)]]
+     [(0, 1, 1, 0),
+     (0, 1, 0, 0),
+     (0, 1, 0, 0),
+     (0, 0, 0, 0)]]
+L_impair = [[(0, 0, 0, 1),
+            (0, 1, 1, 1),
+            (0, 0, 0, 0),
+            (0, 0, 0, 0)],
+
+            [(0, 0, 1, 0),
+            (0, 0, 1, 0),
+            (0, 0, 1, 1),
+            (0, 0, 0, 0)],
+
+            [(0, 1, 1, 1),
+            (0, 1, 0, 0),
+            (0, 0, 0, 0),
+            (0, 0, 0, 0)],
+
+            [(0, 1, 1, 0),
+            (0, 0, 1, 0),
+            (0, 0, 1, 0),
+            (0, 0, 0, 0)]]
 Bloc = [[(0, 0, 0, 0),
           (0, 0, 0, 0), 
           (0, 0, 1, 1),
@@ -96,26 +116,7 @@ Bloc = [[(0, 0, 0, 0),
           (0, 0, 0, 0), 
           (0, 0, 1, 1),
           (0, 0, 1, 1)],]
-Coin = [[(1, 1, 0, 0),
-         (1, 0, 0, 0),
-         (0, 0, 0, 0),
-         (0, 0, 0, 0)],
-         
-        [(1, 1, 0, 0),
-         (0, 1, 0, 0),
-         (0, 0, 0, 0),
-         (0, 0, 0, 0)],
-         
-        [(0, 1, 0, 0),
-         (1, 1, 0, 0),
-         (0, 0, 0, 0),
-         (0, 0, 0, 0)],
-
-        [(1, 0, 0, 0),
-         (1, 1, 0, 0),
-         (0, 0, 0, 0),
-         (0, 0, 0, 0)],]
-Double_coin = [[(0, 1, 0, 0),
+T = [[(0, 1, 0, 0),
                 (1, 1, 1, 0), 
                 (0, 0, 0, 0),
                 (0, 0, 0, 0)],
@@ -153,7 +154,7 @@ Pont = [[(1, 1, 1, 1),
            (0, 1, 1, 0),
            (0, 1, 0, 0),
            (0, 1, 1, 0)]]
-S = [[(0, 1, 1, 0),
+S_pair = [[(0, 1, 1, 0),
       (1, 1, 0, 0),
       (0, 0, 0, 0),
       (0, 0, 0, 0)],
@@ -163,34 +164,37 @@ S = [[(0, 1, 1, 0),
         (0, 1, 0, 0),
         (0, 0, 0, 0)],
 
-       [(1, 1, 0, 0),
-        (0, 1, 1, 0), 
+       [(0, 1, 1, 0),
+        (1, 1, 0, 0), 
         (0, 0, 0, 0),
         (0, 0, 0, 0)],
 
-       [(0, 1, 0, 0),
+       [(1, 0, 0, 0),
         (1, 1, 0, 0), 
-        (1, 0, 0, 0),
+        (0, 1, 0, 0),
         (0, 0, 0, 0)],]
-Gros_bloc = [[(1, 1, 0, 0),
-              (1, 1, 0, 0),
-              (1, 1, 0, 0),
+S_impair = [[(1, 1, 0, 0),
+             (0, 1, 1, 0),
+             (0, 0, 0, 0),
+             (0, 0, 0, 0)],
+
+            [ (0, 1, 0, 0),
+              (1, 1, 0, 0), 
+              (1, 0, 0, 0),
               (0, 0, 0, 0)],
 
-              [(1, 1, 1, 0),
-              (1, 1, 1, 0),
-              (0, 0, 0, 0),
-              (0, 0, 0, 0)],
+            [(1, 1, 0, 0),
+             (0, 1, 1, 0),
+             (0, 0, 0, 0),
+             (0, 0, 0, 0)],
 
-              [(1, 1, 0, 0),
-              (1, 1, 0, 0),
-              (1, 1, 0, 0),
-              (0, 0, 0, 0)],
-              
-              [(1, 1, 1, 0),
-              (1, 1, 1, 0),
-              (0, 0, 0, 0),
+            [ (0, 1, 0, 0),
+              (1, 1, 0, 0), 
+              (1, 0, 0, 0),
               (0, 0, 0, 0)]]
+
+piece_possible = [Barre, L_impair, L_pair, Bloc, T, S_impair, S_pair]           # 7
+couleurs_possibles = [Vert, Bleu, Bleu_ciel, Rouge, Jaune, Orange, Rose]    # 7
 
 class Blocs:
     def __init__(self, x, types, color):
@@ -208,7 +212,34 @@ class Blocs:
         for i in range(4):
             for u in range(4):
                 if self.type[self.etat%4][i][u] == 1:
-                    screen.blit(self.color, (self.x+u*20,self.y+i*20))  
+                        screen.blit(self.color, (self.x+u*20,self.y+i*20))  
+    def check_collision(self, x_nv, y_nv):
+        for piece in PIECE:
+            if piece is None or piece is self:
+                continue
+            for i in range(4):
+                for u in range(4):
+                    if self.type[self.etat % 4][i][u] == 1:
+                        X = x_nv + u * 20
+                        Y = y_nv + i * 20
+                        if X < 17 or X >= 343 or Y >= 590:
+                            return True
+                        for o in range(4):
+                            for p in range(4):
+                                if piece.type[piece.etat % 4][o][p] == 1:
+                                    X2 = piece.x + p * 20
+                                    Y2 = piece.y + o * 20
+                                    if abs(X-X2) < 20 and abs(Y2-Y)< 20:
+                                        return True
+        for i in range(4):
+            for u in range(4):
+                if self.type[self.etat % 4][i][u] == 1:
+                    X = x_nv + u * 20
+                    Y = y_nv + i * 20
+                    if X < 17 or X >= 323 or Y >= 580:
+                        return True
+        return False                        
+
     def update(self):
         if not self.ok:
             self.chrono += 1
@@ -223,28 +254,29 @@ class Blocs:
             self.chrono_bis = 0
 
         if self.active:
-            if tempo%60 == 0 and self.y + 9 < 505 and not keys[pygame.K_DOWN]:
-                self.y += 10                                     # Quand on arrive en bas la pièce descend plus lentement 
+            if keys[pygame.K_DOWN] and not self.check_collision(self.x, self.y+10):
+                self.y += 10                         
+            elif tempo%60 == 0 and not self.check_collision(self.x, self.y+10):
+                self.y += 10             
             if keys[pygame.K_UP] and self.ok:
                 self.etat += 1    
                 self.ok = False
-            if keys[pygame.K_DOWN] and self.y + 20 < 505:
-                self.y += 20   
-            if keys[pygame.K_LEFT] and self.ok_bis:
+
+            if keys[pygame.K_LEFT] and self.ok_bis and not self.check_collision(self.x-20, self.y):
                 self.x -= 20  
                 self.ok_bis = False
-            if keys[pygame.K_RIGHT] and self.ok_bis:
+            if keys[pygame.K_RIGHT] and self.ok_bis and not self.check_collision(self.x+20, self.y):
                 self.x += 20    
                 self.ok_bis = False
     
 PIECE = [None] * 100
 etat_barre = 0
 nb_pieces = 1
-PIECE[0] = Blocs(120, Pont, Orange)
+PIECE[0] = Blocs(240, L_impair, Orange)
 x = True
 tempo = 0
 X = 100
-Y = -5
+Y = -10
 ok = True
 ok_bis = True
 chrono_pour_touche = 0
@@ -266,15 +298,18 @@ while x:
 
     screen.fill((100, 0, 205))    
     pygame.draw.line(screen, (255, 255, 255), (343, 20), (343, 590), 5)
-    pygame.draw.line(screen, (255, 255, 255), (18, 20), (18, 590), 5)
-    pygame.draw.line(screen, (255, 255, 255), (18, 590), (343, 590), 5)
+    pygame.draw.line(screen, (255, 255, 255), (17, 20), (17, 590), 5)
+    pygame.draw.line(screen, (255, 255, 255), (17, 590), (343, 590), 5)
 
     for i in range(nb_pieces):
         PIECE[i].update()
         PIECE[i].draw()
-    if PIECE[nb_pieces-1].y > 500:
-        PIECE[nb_pieces] = Blocs(300, Coin, Rose)
-        PIECE[nb_pieces-1].active = False
+
+    dernier = PIECE[nb_pieces-1]
+    if dernier.check_collision(dernier.x, dernier.y+20) and dernier.active:
+        a = randint(0, 6)
+        PIECE[nb_pieces] = Blocs(240, piece_possible[a], couleurs_possibles[a])
+        dernier.active = False
         nb_pieces += 1
     pygame.display.flip()
 
