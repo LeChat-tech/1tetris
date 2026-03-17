@@ -209,8 +209,8 @@ couleurs_possibles = [Vert, Bleu, Bleu_ciel, Rouge, Jaune, Orange, Rose]    # 7
 
 class Pieces:
     def __init__(self, x, y, etat, types, couleur):
-        self.x = x
-        self.y = y
+        self.x = (x-20)//30
+        self.y = (y-40)//30
         self.etat = etat
         self.color = couleur
         self.type = types
@@ -220,14 +220,33 @@ class Pieces:
         for i in range(4):
             for u in range(4):
                 if L_impair[0][i][u] == 1:
-                    GRILLE[(self.x%10)+i][(self.y%18)+u] = Vert
+                    GRILLE[(self.x+i)][(self.y+u)] = Vert
     def update(self):
         if self.active:
-            self.y += Taille_cube
+            for i in range(4):
+                for u in range(4):
+                    if L_impair[0][i][u] == 1:
+                        GRILLE[(self.x+i)][(self.y+u)] = "0"
+            self.y += 1
+    def Right(self):
+        for i in range(4):
+            for u in range(4):
+                if L_impair[0][i][u] == 1:
+                    GRILLE[(self.x+i)][(self.y+u)] = "0"
+        self.x += 1
+
+    def Left(self):
+        for i in range(4):
+            for u in range(4):
+                if L_impair[0][i][u] == 1:
+                    GRILLE[(self.x+i)][(self.y+u)] = "0"
+        self.x -= 1
 
 run = True
-TET = Pieces(250, 10, 0, L_impair, Vert)
+TET = Pieces(250, 50, 0, L_impair, Vert)
 Chrono = 0
+Chrono_pour_touche = 0
+VITESSE_POUR_LES_TOUCHES = 15
 while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -250,7 +269,13 @@ while run:
     pygame.draw.line(screen, (255, 255, 255), (lim_grille_x1, lim_grille_y2), (lim_grille_x2, lim_grille_y2), 5)
 
     TET.draw()
-
+    if Chrono_pour_touche == 0:
+        if keys[pygame.K_LEFT] and TET.x > 0:
+            TET.Left()      
+            Chrono_pour_touche = VITESSE_POUR_LES_TOUCHES
+        if keys[pygame.K_RIGHT] and TET.x < 9: 
+            TET.Right() 
+            Chrono_pour_touche = VITESSE_POUR_LES_TOUCHES
 
     for i in range(X_G):
         for u in range(Y_G):
@@ -258,7 +283,7 @@ while run:
                 text_grille = GRILLE[i][u]
                 screen.blit(text_grille, (20+Taille_cube*i, 50+Taille_cube*u)) 
 
-    pygame.display.flip()
+
     
     X, Y = pygame.mouse.get_pos()
     if keys[pygame.K_p]:        
@@ -266,9 +291,11 @@ while run:
         print("Y:", Y)
 
     Chrono += 1
+    if Chrono_pour_touche > 0:
+        Chrono_pour_touche -= 1
     if Chrono == 61:
         Chrono = 1
-
+    pygame.display.flip()
     clock.tick(60)
 
 pygame.quit()
