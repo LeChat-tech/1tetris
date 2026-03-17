@@ -20,7 +20,10 @@ screen = pygame.display.set_mode((largeur, hauteur))
 pygame.display.set_caption('Tétris')
 
 clock = pygame.time.Clock()
-dimmension_carres = (20, 20)  
+
+Taille_cube = 30
+dimmension_carres = (Taille_cube, Taille_cube)  
+
 Vert = pygame.image.load("carre_vert.png").convert()             
 Vert = pygame.transform.scale(Vert, dimmension_carres) 
 
@@ -195,165 +198,65 @@ S_impair = [[[1, 1, 0, 0],
              [1, 0, 0, 0],
              [0, 0, 0, 0]]]
 
+X_G = 10
+Y_G = 18
+GRILLE = ["0"]*X_G
+for i in range(len(GRILLE)):
+    GRILLE[i] = ["0"]*Y_G
+
 piece_possible = [Barre, L_impair, L_pair, Bloc, T, S_impair, S_pair]           # 7
 couleurs_possibles = [Vert, Bleu, Bleu_ciel, Rouge, Jaune, Orange, Rose]    # 7
 
-class Blocs:
-    def __init__(self, x, types, color):
+class Pieces:
+    def __init__(self, x, y, etat, types, couleur):
         self.x = x
-        self.y = 15
-        self.type = copy.deepcopy(types)
-        self.color = color
-        self.etat = 0
+        self.y = y
+        self.etat = etat
+        self.color = couleur
+        self.type = types
         self.active = True
-        self.ok = True
-        self.ok_bis = True
-        self.chrono = 0
-        self.chrono_bis = 0
-        self.tempo = 1
     def draw(self):
+        global GRILLE
         for i in range(4):
             for u in range(4):
-                if self.type[self.etat%4][i][u] == 1:
-                        screen.blit(self.color, (self.x+u*20,self.y+i*20))  
-    def check_collision(self, x_nv, y_nv):
-        for piece in PIECE:
-            if piece is None or piece is self:
-                continue
-            for i in range(4):
-                for u in range(4):
-                    if self.type[self.etat % 4][i][u] == 1:
-                        X = x_nv + u * 20
-                        Y = y_nv + i * 20
-                        if X < 17 or X >= 343 or Y >= 590:
-                            return True
-                        for o in range(4):
-                            for p in range(4):
-                                if piece.type[piece.etat % 4][o][p] == 1:
-                                    X2 = piece.x + p * 20
-                                    Y2 = piece.y + o * 20
-                                    if abs(X-X2) < 20 and (Y == Y2 and abs(X-X2) < 20):
-                                        return True
-        for i in range(4):
-            for u in range(4):
-                if self.type[self.etat % 4][i][u] == 1:
-                    X = x_nv + u * 20
-                    Y = y_nv + i * 20
-                    if X < 17 or X >= 343 or Y >= 580:
-                        return True
-        return False                        
-
+                if L_impair[0][i][u] == 1:
+                    GRILLE[(self.x%10)+i][(self.y%18)+u] = Vert
     def update(self):
-        if not self.ok:
-            self.chrono += 1
-        if self.chrono == 12:
-            self.ok = True
-            self.chrono = 0
-
-        if not self.ok_bis:
-            self.chrono_bis += 1
-        if self.chrono_bis == 6:
-            self.ok_bis = True
-            self.chrono_bis = 0
-
         if self.active:
-            if keys[pygame.K_DOWN]:
-                if not self.check_collision(self.x, self.y+20):
-                    self.y += 20         
-                else:
-                    self.active = False 
-            elif self.tempo % 60 == 0:
-                if not self.check_collision(self.x, self.y+20):
-                    self.y += 20
-                else:
-                    self.active = False
-      
+            self.y += Taille_cube
 
-            if keys[pygame.K_UP] and self.ok:
-                self.etat += 1    
-                self.ok = False
-
-            if keys[pygame.K_LEFT] and self.ok_bis and not self.check_collision(self.x-20, self.y):
-                self.x -= 20  
-                self.ok_bis = False
-            if keys[pygame.K_RIGHT] and self.ok_bis and not self.check_collision(self.x+20, self.y):
-                self.x += 20    
-                self.ok_bis = False
-
-def supprimer_ligne(ORDONNE):
-    for piece in PIECE:
-        if piece is None:
-            continue
-
-        for i in range(4):
-            for u in range(4):
-                if piece.type[piece.etat % 4][i][u] == 1:
-                    Y = piece.y + i * 20
-
-                    if Y == ORDONNE:
-                        piece.type[piece.etat % 4][i][u] = 0
-
-    for piece in PIECE:
-        if piece is None:
-            continue
-
-        for i in range(4):
-            for u in range(4):
-                if piece.type[piece.etat % 4][i][u] == 1:
-                    Y = piece.y + i * 20
-
-                    # Si le bloc est au-dessus de la ligne supprimée
-                    if Y < ORDONNE:
-                        piece.y += 20
-                        break
-
-
-PIECE = [None] * 100
-etat_barre = 0
-nb_pieces = 1
-PIECE[0] = Blocs(150, Barre, Bleu_ciel)
-x = True
-tempo = 0
-X = 100
-Y = 10
-ok = True
-ok_bis = True
-chrono_pour_touche = 0
-chrono_pour_touche_bis = 0
-
-while x:
+run = True
+TET = Pieces(250, 10, 0, L_impair, Vert)
+Chrono = 0
+while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            x = False
+            run = False
     keys = pygame.key.get_pressed()
     if keys[pygame.K_r]:  # pour arrêter la boucle avec la touche 'r'
-        x = False
+        run = False
+    
+    if Chrono == 60:
+        TET.update()
 
 
     screen.fill((100, 0, 205))    
-    pygame.draw.line(screen, (255, 255, 255), (352, 20), (352, 597), 5)
-    pygame.draw.line(screen, (255, 255, 255), (26, 20), (26, 597), 5)
-    pygame.draw.line(screen, (255, 255, 255), (26, 597), (352, 597), 5)
+    lim_grille_x1 = 17
+    lim_grille_x2 = 322
+    lim_grille_y1 = 40
+    lim_grille_y2 = 593
+    pygame.draw.line(screen, (255, 255, 255), (lim_grille_x2, lim_grille_y1), (lim_grille_x2, lim_grille_y2), 5)
+    pygame.draw.line(screen, (255, 255, 255), (lim_grille_x1, lim_grille_y1), (lim_grille_x1, lim_grille_y2), 5)
+    pygame.draw.line(screen, (255, 255, 255), (lim_grille_x1, lim_grille_y2), (lim_grille_x2, lim_grille_y2), 5)
 
-    for i in range(nb_pieces):
-        PIECE[i].update()
-        PIECE[i].draw()
+    TET.draw()
 
-    if keys[pygame.K_e]:
-        supprimer_ligne(575)
-        time.sleep(1)
 
-    dernier = PIECE[nb_pieces-1]
-    if not keys[pygame.K_DOWN]:
-        dernier.tempo += 1
-    if dernier.tempo == 61:
-        dernier.tempo = 1
-
-    if not dernier.active:
-        a = randint(0, 6)
-        PIECE[nb_pieces] = Blocs(150, piece_possible[a], couleurs_possibles[a])
-        nb_pieces += 1
-        time.sleep(0.1)
+    for i in range(X_G):
+        for u in range(Y_G):
+            if GRILLE[i][u] != "0":
+                text_grille = GRILLE[i][u]
+                screen.blit(text_grille, (20+Taille_cube*i, 50+Taille_cube*u)) 
 
     pygame.display.flip()
     
@@ -362,9 +265,10 @@ while x:
         print("X:", X)     
         print("Y:", Y)
 
-    tempo += 1
-    if tempo == 61:
-        tempo = 0
+    Chrono += 1
+    if Chrono == 61:
+        Chrono = 1
+
     clock.tick(60)
 
 pygame.quit()
