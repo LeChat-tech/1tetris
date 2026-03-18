@@ -219,34 +219,45 @@ class Pieces:
         global GRILLE
         for i in range(4):
             for u in range(4):
-                if L_impair[0][i][u] == 1:
-                    GRILLE[(self.x+i)][(self.y+u)] = Vert
-    def update(self):
-        if self.active:
-            for i in range(4):
-                for u in range(4):
-                    if L_impair[0][i][u] == 1:
-                        GRILLE[(self.x+i)][(self.y+u)] = "0"
-            self.y += 1
-    def Right(self):
+                if self.type[self.etat%4][i][u] == 1:
+                    GRILLE[(self.x+i)][(self.y+u)] = self.color
+
+    def check_collision(self, dx, dy, etat):
         for i in range(4):
             for u in range(4):
-                if L_impair[0][i][u] == 1:
-                    GRILLE[(self.x+i)][(self.y+u)] = "0"
-        self.x += 1
+                if self.type[etat % 4][i][u] == 1:
+                    X = self.x + i + dx
+                    Y = self.y + u + dy
+
+                    if X < 0 or X >= X_G or Y >= Y_G:
+                        return True
+                    if Y >= 0 and GRILLE[X][Y] != "0":
+                        return True
+        return False
+
+    def update(self):
+        if self.active and not self.check_collision(0, 1, self.etat):            
+            self.y += 1
+        if self.check_collision(0, 1, self.etat):
+            self.active = False
+
+    def Right(self):
+        if self.active and not self.check_collision(1, 0, self.etat):
+            self.x += 1
 
     def Left(self):
-        for i in range(4):
-            for u in range(4):
-                if L_impair[0][i][u] == 1:
-                    GRILLE[(self.x+i)][(self.y+u)] = "0"
-        self.x -= 1
+        if self.active and not self.check_collision(-1, 0, self.etat):
+            self.x -= 1
 
 run = True
-TET = Pieces(250, 50, 0, L_impair, Vert)
+BLOCS = [None]*100
+derniere = 0
+
+A = randint(0, 6)
+TET = Pieces(250, 50, 0, piece_possible[A], couleurs_possibles[A])
 Chrono = 0
 Chrono_pour_touche = 0
-VITESSE_POUR_LES_TOUCHES = 15
+VITESSE_POUR_LES_TOUCHES = 10
 while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -254,10 +265,21 @@ while run:
     keys = pygame.key.get_pressed()
     if keys[pygame.K_r]:  # pour arrêter la boucle avec la touche 'r'
         run = False
-    
-    if Chrono == 60:
+    GRILLE = [["0"] * Y_G for _ in range(X_G)]
+
+    if Chrono % 30 == 0:
         TET.update()
 
+    if Chrono_pour_touche == 0:
+        if keys[pygame.K_LEFT]:
+            TET.Left()      
+            Chrono_pour_touche = VITESSE_POUR_LES_TOUCHES
+        if keys[pygame.K_RIGHT]: 
+            TET.Right() 
+            Chrono_pour_touche = VITESSE_POUR_LES_TOUCHES
+        if keys[pygame.K_UP] and not TET.check_collision(0, 0, TET.etat+1) and TET.active:
+            TET.etat += 1
+            Chrono_pour_touche = VITESSE_POUR_LES_TOUCHES
 
     screen.fill((100, 0, 205))    
     lim_grille_x1 = 17
@@ -268,23 +290,15 @@ while run:
     pygame.draw.line(screen, (255, 255, 255), (lim_grille_x1, lim_grille_y1), (lim_grille_x1, lim_grille_y2), 5)
     pygame.draw.line(screen, (255, 255, 255), (lim_grille_x1, lim_grille_y2), (lim_grille_x2, lim_grille_y2), 5)
 
-    TET.draw()
-    if Chrono_pour_touche == 0:
-        if keys[pygame.K_LEFT] and TET.x > 0:
-            TET.Left()      
-            Chrono_pour_touche = VITESSE_POUR_LES_TOUCHES
-        if keys[pygame.K_RIGHT] and TET.x < 9: 
-            TET.Right() 
-            Chrono_pour_touche = VITESSE_POUR_LES_TOUCHES
+
+    TET.draw()                  # ajouter le bloc dans la grille
 
     for i in range(X_G):
-        for u in range(Y_G):
+        for u in range(Y_G):            # dessiner la grille
             if GRILLE[i][u] != "0":
                 text_grille = GRILLE[i][u]
                 screen.blit(text_grille, (20+Taille_cube*i, 50+Taille_cube*u)) 
 
-
-    
     X, Y = pygame.mouse.get_pos()
     if keys[pygame.K_p]:        
         print("X:", X)     
