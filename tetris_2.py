@@ -83,16 +83,14 @@ L_pair = [[[0, 1, 1, 1],
            [0, 1, 0, 0],
            [0, 1, 0, 0],
            [0, 0, 0, 0]]]
-
-
 L_impair = [[[0, 1, 1, 1],
              [0, 1, 0, 0],
              [0, 0, 0, 0],
              [0, 0, 0, 0]],
 
-            [[0, 1, 0, 0],
-             [0, 1, 0, 0],
-             [0, 1, 1, 0],
+            [[0, 1, 1, 0],
+             [0, 0, 1, 0],
+             [0, 0, 1, 0],
              [0, 0, 0, 0]],
 
             [[0, 0, 0, 1],
@@ -100,10 +98,11 @@ L_impair = [[[0, 1, 1, 1],
              [0, 0, 0, 0],
              [0, 0, 0, 0]],
 
-            [[0, 1, 1, 0],
-             [0, 0, 1, 0],
-             [0, 0, 1, 0],
+            [[0, 1, 0, 0],
+             [0, 1, 0, 0],
+             [0, 1, 1, 0],
              [0, 0, 0, 0]]]
+
 Bloc = [[[0, 0, 1, 1],
          [0, 0, 1, 1],
          [0, 0, 0, 0],
@@ -129,7 +128,7 @@ T = [[[0, 0, 0, 0],
       [0, 0, 0, 0]],
 
      [[0, 1, 0, 0],
-      [0, 1, 1, 0],
+      [1, 1, 0, 0],
       [0, 1, 0, 0],
       [0, 0, 0, 0]],
 
@@ -139,7 +138,7 @@ T = [[[0, 0, 0, 0],
       [0, 0, 0, 0]],
 
      [[0, 1, 0, 0],
-      [1, 1, 0, 0],
+      [0, 1, 1, 0],
       [0, 1, 0, 0],
       [0, 0, 0, 0]]]
 S_pair = [[[0, 1, 1, 0],
@@ -273,10 +272,6 @@ def Adpater_y_pour_le_spawn(piece_a_mettre_ensuite):
     else:
         return 2
 
-
-
-
-
 A = randint(0, 6)
 yp = Adpater_y_pour_le_spawn(piece_possible[A])
 BLOCS[derniere] = Pieces(4, yp, 0, piece_possible[A], couleurs_possibles[A])
@@ -284,15 +279,20 @@ BLOCS[derniere] = Pieces(4, yp, 0, piece_possible[A], couleurs_possibles[A])
 Chrono = 0
 Chrono_pour_touche = 0
 Chrono_pour_positions = 0
-VITESSE_POUR_LES_TOUCHES = 8
+VITESSE_POUR_LES_TOUCHES = 7
 GRILLE_FIXE = [["0"] * Y_G for _ in range(X_G)]
 
 PETITE_GRILLE = [["0"] * 4 for i in range(4)]
+
+B = -1
 ################################################################################################################
 while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
+
+    if B == -1:
+        B = randint(0, len(piece_possible)-1)
     keys = pygame.key.get_pressed()
     if keys[pygame.K_r]:  # pour arrêter la boucle avec la touche 'r'
         run = False
@@ -313,20 +313,26 @@ while run:
     if Chrono % 30 == 0:
         BLOCS[derniere].update()
         if not BLOCS[derniere].active:
-            time.sleep(0.075)
+            #time.sleep(0.075)
             derniere += 1
-            A = randint(0, len(piece_possible)-1)
+            
             Chrono_pour_touche = 20
             
-            yp = Adpater_y_pour_le_spawn(piece_possible[A])
-            BLOCS[derniere] = Pieces(4, yp, 0, piece_possible[A], couleurs_possibles[A])
+            yp = Adpater_y_pour_le_spawn(piece_possible[B])
+            BLOCS[derniere] = Pieces(4, yp, 0, piece_possible[B], couleurs_possibles[B])
+            PETITE_GRILLE = [["0"] * 4 for i in range(4)]
+            B = randint(0, len(piece_possible)-1)
             if BLOCS[derniere].check_collision(0, 0, BLOCS[derniere].etat):
                 run = False
 
+        for i in range(4): 
+            for u in range(4):  
+                if piece_possible[B][0][i][u] == 1:
+                    PETITE_GRILLE[u][i+1] = couleurs_possibles[B]
 
     if keys[pygame.K_DOWN]:
         BLOCS[derniere].update()
-
+                ########## DESSIN ########################################################################
     screen.fill((100, 0, 215))    
     lim_grille_x1 = 17
     lim_grille_x2 = 322
@@ -336,10 +342,10 @@ while run:
     pygame.draw.line(screen, (255, 255, 255), (lim_grille_x1, lim_grille_y1), (lim_grille_x1, lim_grille_y2), 5)
     pygame.draw.line(screen, (255, 255, 255), (lim_grille_x1, lim_grille_y2), (lim_grille_x2, lim_grille_y2), 5)
 
-    lim_petite_grille_x1 = 345
-    lim_petite_grille_x2 = 470
-    lim_petite_grille_y1 = 95
-    lim_petite_grille_y2 = 220
+    lim_petite_grille_x1 = 347
+    lim_petite_grille_x2 = 473
+    lim_petite_grille_y1 = 98
+    lim_petite_grille_y2 = 223
 
     pygame.draw.line(screen, (255, 255, 255), (lim_petite_grille_x1, lim_petite_grille_y1), (lim_petite_grille_x2, lim_petite_grille_y1), 5)
     pygame.draw.line(screen, (255, 255, 255), (lim_petite_grille_x2, lim_petite_grille_y1), (lim_petite_grille_x2, lim_petite_grille_y2), 5)
@@ -368,7 +374,7 @@ while run:
                 screen.blit(text_grille, (350+Taille_cube*i, 100+Taille_cube*u)) 
             else:
                 text_grille = font.render("0", True, (255, 255, 255))
-                screen.blit(text_grille, (355+Taille_cube*i, 100+Taille_cube*u))
+                #screen.blit(text_grille, (355+Taille_cube*i, 100+Taille_cube*u))
 
 
 
@@ -382,8 +388,12 @@ while run:
             BLOCS[i] = None
             GRILLE_FIXE = [["0"] * Y_G for _ in range(X_G)]
             derniere = 0
-            A = randint(0, 6)
-            BLOCS[derniere] = Pieces(175, 50, 0, piece_possible[A], couleurs_possibles[A])
+            A = randint(0, len(piece_possible)-1)
+            Chrono_pour_touche = 20
+            
+            yp = Adpater_y_pour_le_spawn(piece_possible[A])
+            BLOCS[derniere] = Pieces(4, yp, 0, piece_possible[A], couleurs_possibles[A])
+            B = -1
 
 
     Chrono += 1
