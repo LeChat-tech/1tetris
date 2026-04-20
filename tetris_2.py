@@ -11,7 +11,7 @@ pygame.font.init()
 key_last_state = {}
 
 # Configuration de la police pour le score
-font = pygame.font.SysFont('Arial', 20)
+font = pygame.font.SysFont('Arial', 25)
 
 # Paramètres de la fenêtre
 largeur = 500
@@ -285,6 +285,9 @@ GRILLE_FIXE = [["0"] * Y_G for _ in range(X_G)]
 PETITE_GRILLE = [["0"] * 4 for i in range(4)]
 
 B = -1
+PAUSE = False
+score = 0
+x_score = 480
 ################################################################################################################
 while run:
     for event in pygame.event.get():
@@ -296,21 +299,23 @@ while run:
     keys = pygame.key.get_pressed()
     if keys[pygame.K_r]:  # pour arrêter la boucle avec la touche 'r'
         run = False
-    GRILLE = [row[:] for row in GRILLE_FIXE]
 
-    if Chrono_pour_touche == 0:
+    GRILLE = [row[:] for row in GRILLE_FIXE]
+    BLOCS[derniere].draw()
+
+    if Chrono_pour_touche == 0 and not PAUSE:
         if keys[pygame.K_LEFT]:
             BLOCS[derniere].Left()      
             Chrono_pour_touche = VITESSE_POUR_LES_TOUCHES
         if keys[pygame.K_RIGHT]: 
             BLOCS[derniere].Right() 
             Chrono_pour_touche = VITESSE_POUR_LES_TOUCHES
-    if Chrono_pour_positions == 0:
+    if Chrono_pour_positions == 0 and not PAUSE:
         if keys[pygame.K_UP] and not BLOCS[derniere].check_collision(0, 0, BLOCS[derniere].etat+1) and BLOCS[derniere].active:
             BLOCS[derniere].etat += 1
             Chrono_pour_positions = VITESSE_POUR_LES_TOUCHES
 
-    if Chrono % 30 == 0:
+    if Chrono % 30 == 0 and not PAUSE:
         BLOCS[derniere].update()
         if not BLOCS[derniere].active:
             #time.sleep(0.075)
@@ -322,15 +327,51 @@ while run:
             BLOCS[derniere] = Pieces(4, yp, 0, piece_possible[B], couleurs_possibles[B])
             PETITE_GRILLE = [["0"] * 4 for i in range(4)]
             B = randint(0, len(piece_possible)-1)
+
+            nb_lignes = 0
+            for i in range(Y_G):
+                ligne_complete = True
+
+                for u in range(X_G):
+                    if GRILLE_FIXE[u][i] == "0":
+                        ligne_complete = False
+                        break
+
+                if ligne_complete:
+                    nb_lignes += 1
+                    time.sleep(0.1)
+                    for u in range(X_G):
+                        GRILLE_FIXE[u][i] = "0"
+
+                    for y in range(i, 0, -1):
+                        for u in range(X_G):
+                            GRILLE_FIXE[u][y] = GRILLE_FIXE[u][y-1]
+
+                    for u in range(X_G):
+                        GRILLE_FIXE[u][0] = "0"
+                    
+                    GRILLE = [row[:] for row in GRILLE_FIXE]
+            if nb_lignes == 1:
+                score += 40
+            elif nb_lignes == 2:
+                score += 100
+            elif nb_lignes == 3:
+                score += 300
+            elif nb_lignes == 4:
+                score += 1200
+            nb_lignes = 0
+
+
+
             if BLOCS[derniere].check_collision(0, 0, BLOCS[derniere].etat):
-                run = False
+                PAUSE = True
 
         for i in range(4): 
             for u in range(4):  
                 if piece_possible[B][0][i][u] == 1:
                     PETITE_GRILLE[u][i+1] = couleurs_possibles[B]
 
-    if keys[pygame.K_DOWN]:
+    if keys[pygame.K_DOWN] and not PAUSE:
         BLOCS[derniere].update()
                 ########## DESSIN ########################################################################
     screen.fill((100, 0, 215))    
@@ -352,11 +393,16 @@ while run:
     pygame.draw.line(screen, (255, 255, 255), (lim_petite_grille_x2, lim_petite_grille_y2), (lim_petite_grille_x1, lim_petite_grille_y2), 5)
     pygame.draw.line(screen, (255, 255, 255), (lim_petite_grille_x1, lim_petite_grille_y2), (lim_petite_grille_x1, lim_petite_grille_y1), 5)
 
+    text_score = font.render(f"Score:", True, (255, 255, 255))
+    screen.blit(text_score, (365, 270))  
+    autre_text_score = font.render(f"{score}", True, (255, 255, 255))
 
-    for i in range(len(BLOCS)):
-        if BLOCS[i] == None:
-            break
-        BLOCS[i].draw()                  # ajouter le bloc dans la grille
+    if score > 100 and x_score == 480-0:
+        x_score -= 30
+    if score > 1000 and x_score == 480-30:
+        x_score -= 30
+    screen.blit(autre_text_score, (x_score, 300))
+
 
     for i in range(X_G):
         for u in range(Y_G):            # dessiner la grille
@@ -385,12 +431,14 @@ while run:
 
     if keys[pygame.K_a]:
         for i in range(len(BLOCS)):
+            PAUSE = False
             BLOCS[i] = None
-            GRILLE_FIXE = [["0"] * Y_G for _ in range(X_G)]
+            GRILLE_FIXE = [["0"] * Y_G for i in range(X_G)]
+            PETITE_GRILLE = [["0"] * 4 for i in range (4)]
             derniere = 0
             A = randint(0, len(piece_possible)-1)
             Chrono_pour_touche = 20
-            
+            score = 0
             yp = Adpater_y_pour_le_spawn(piece_possible[A])
             BLOCS[derniere] = Pieces(4, yp, 0, piece_possible[A], couleurs_possibles[A])
             B = -1
