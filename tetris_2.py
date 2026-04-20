@@ -206,8 +206,8 @@ GRILLE = ["0"]*X_G
 for i in range(len(GRILLE)):
     GRILLE[i] = ["0"]*Y_G
 
-piece_possible = [Barre, L_impair, L_pair, Bloc, T, S_impair, S_pair]           # 7
-couleurs_possibles = [Vert, Bleu, Bleu_ciel, Rouge, Jaune, Orange, Rose]    # 7
+piece_possible = [Barre, L_impair, L_pair, Bloc, T, S_impair, S_pair, ]           # 7
+couleurs_possibles = [Vert, Bleu, Bleu_ciel, Rouge, Jaune, Orange, Rose, ]    # 7
 
 class Pieces:
     def __init__(self, x, y, etat, types, couleur):
@@ -288,6 +288,11 @@ B = -1
 PAUSE = False
 score = 0
 x_score = 480
+
+vitesse_de_depart = 30
+VITESSE_DE_JEU = vitesse_de_depart
+nb_total_lignes = 0
+ok = False
 ################################################################################################################
 while run:
     for event in pygame.event.get():
@@ -315,7 +320,7 @@ while run:
             BLOCS[derniere].etat += 1
             Chrono_pour_positions = VITESSE_POUR_LES_TOUCHES
 
-    if Chrono % 30 == 0 and not PAUSE:
+    if Chrono % VITESSE_DE_JEU == 0 and not PAUSE:
         BLOCS[derniere].update()
         if not BLOCS[derniere].active:
             #time.sleep(0.075)
@@ -338,6 +343,7 @@ while run:
                         break
 
                 if ligne_complete:
+                    nb_total_lignes += 1
                     nb_lignes += 1
                     time.sleep(0.1)
                     for u in range(X_G):
@@ -397,12 +403,27 @@ while run:
     screen.blit(text_score, (365, 270))  
     autre_text_score = font.render(f"{score}", True, (255, 255, 255))
 
-    if score > 100 and x_score == 480-0:
-        x_score -= 30
-    if score > 1000 and x_score == 480-30:
-        x_score -= 30
+    if score != 0 and x_score == 480:
+        x_score -= 10
+    if score > 99 and x_score == 480-10:
+        x_score -= 20
+    if score > 999 and x_score == 480-20-10:
+        x_score -= 20
+    if score > 9999 and x_score == 480-20*2-10:
+            x_score -= 20
+    if score > 99999 and x_score == 480-20*3-10:
+        x_score -= 20
+    if score > 999999 and x_score == 480-20*4-10:
+        x_score -= 20
     screen.blit(autre_text_score, (x_score, 300))
 
+    pygame.draw.line(screen, (125, 125, 125), (335, 345), (485, 345), 5)
+
+
+    text_lignes = font.render(f"Lignes:", True, (255, 255, 255))
+    screen.blit(text_lignes, (365, 360))  
+    autre_text_lignes = font.render(f"{nb_total_lignes}", True, (255, 255, 255))
+    screen.blit(autre_text_lignes, (355, 390)) 
 
     for i in range(X_G):
         for u in range(Y_G):            # dessiner la grille
@@ -441,6 +462,7 @@ while run:
             score = 0
             yp = Adpater_y_pour_le_spawn(piece_possible[A])
             BLOCS[derniere] = Pieces(4, yp, 0, piece_possible[A], couleurs_possibles[A])
+            VITESSE_DE_JEU = 30
             B = -1
 
 
