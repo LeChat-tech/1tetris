@@ -263,7 +263,7 @@ class Pieces:
             self.x -= 1
 
 run = True
-BLOCS = [None]*100
+BLOCS = [None]*100000000  # 10 M ca devrait suffir
 derniere = 0
 
 def Adpater_y_pour_le_spawn(piece_a_mettre_ensuite):
@@ -399,6 +399,8 @@ while run:
     pygame.draw.line(screen, (255, 255, 255), (lim_petite_grille_x2, lim_petite_grille_y2), (lim_petite_grille_x1, lim_petite_grille_y2), 5)
     pygame.draw.line(screen, (255, 255, 255), (lim_petite_grille_x1, lim_petite_grille_y2), (lim_petite_grille_x1, lim_petite_grille_y1), 5)
 
+    font = pygame.font.SysFont('Arial', 25)
+
     text_score = font.render(f"Score:", True, (255, 255, 255))
     screen.blit(text_score, (365, 270))  
     autre_text_score = font.render(f"{score}", True, (255, 255, 255))
@@ -443,6 +445,11 @@ while run:
                 text_grille = font.render("0", True, (255, 255, 255))
                 #screen.blit(text_grille, (355+Taille_cube*i, 100+Taille_cube*u))
 
+    if PAUSE:
+        font = pygame.font.SysFont('Arial', 40)
+        pygame.draw.rect(screen, (0, 0, 0), (40, 250, 250, 50))
+        text_game_over = font.render("GAME OVER", True, (255, 255, 255))
+        screen.blit(text_game_over, (45, 255))
 
 
     X, Y = pygame.mouse.get_pos()
@@ -451,19 +458,18 @@ while run:
         print("Y:", Y)
 
     if keys[pygame.K_a]:
-        for i in range(len(BLOCS)):
-            PAUSE = False
-            BLOCS[i] = None
-            GRILLE_FIXE = [["0"] * Y_G for i in range(X_G)]
-            PETITE_GRILLE = [["0"] * 4 for i in range (4)]
-            derniere = 0
-            A = randint(0, len(piece_possible)-1)
-            Chrono_pour_touche = 20
-            score = 0
-            yp = Adpater_y_pour_le_spawn(piece_possible[A])
-            BLOCS[derniere] = Pieces(4, yp, 0, piece_possible[A], couleurs_possibles[A])
-            VITESSE_DE_JEU = 30
-            B = -1
+        BLOCS = [None] * 10000000
+        PAUSE = False
+        GRILLE_FIXE = [["0"] * Y_G for i in range(X_G)]
+        PETITE_GRILLE = [["0"] * 4 for i in range (4)]
+        derniere = 0
+        A = randint(0, len(piece_possible)-1)
+        Chrono_pour_touche = 20
+        score = 0
+        yp = Adpater_y_pour_le_spawn(piece_possible[A])
+        BLOCS[derniere] = Pieces(4, yp, 0, piece_possible[A], couleurs_possibles[A])
+        VITESSE_DE_JEU = 30
+        B = -1
 
 
     Chrono += 1
