@@ -290,6 +290,7 @@ score = 0
 x_score = 480
 
 vitesse_de_depart = 30
+acceleration_du_jeu = 3
 VITESSE_DE_JEU = vitesse_de_depart
 nb_total_lignes = 0
 ok = False
@@ -376,7 +377,7 @@ while run:
 
             for i in range(10):
                 if nb_total_lignes >= 10*(i+1) and nb_total_lignes < 10*(i+2):
-                    VITESSE_DE_JEU = 30 - 3*(i+1)
+                    VITESSE_DE_JEU = vitesse_de_depart - acceleration_du_jeu*(i+1)  
 
             if BLOCS[derniere].check_collision(0, 0, BLOCS[derniere].etat):
                 PAUSE = True
@@ -487,7 +488,7 @@ while run:
         Chrono_pour_touche -= 1
     if Chrono_pour_positions > 0:
         Chrono_pour_positions -= 1
-    if Chrono == 61:
+    if Chrono == 20000:
         Chrono = 1
     pygame.display.flip()
     clock.tick(60)

@@ -262,19 +262,22 @@ class Pieces:
         if self.active and not self.check_collision(-1, 0, self.etat):
             self.x -= 1
 
-run = True
-BLOCS = [None]*100000000  # 10 M ca devrait suffir
-derniere = 0
-
 def Adpater_y_pour_le_spawn(piece_a_mettre_ensuite):
     if piece_a_mettre_ensuite == T or piece_a_mettre_ensuite == Barre:
         return 1
     else:
         return 2
 
+
+run = True
+BLOCS = [None]*3  
+derniere = 0
+
+
+
 A = randint(0, 6)
 yp = Adpater_y_pour_le_spawn(piece_possible[A])
-BLOCS[derniere] = Pieces(4, yp, 0, piece_possible[A], couleurs_possibles[A])
+BLOCS[derniere%3] = Pieces(4, yp, 0, piece_possible[A], couleurs_possibles[A])
 
 Chrono = 0
 Chrono_pour_touche = 0
@@ -290,6 +293,7 @@ score = 0
 x_score = 480
 
 vitesse_de_depart = 30
+acceleration_du_jeu = 3
 VITESSE_DE_JEU = vitesse_de_depart
 nb_total_lignes = 0
 ok = False
@@ -308,30 +312,31 @@ while run:
         run = False
 
     GRILLE = [row[:] for row in GRILLE_FIXE]
-    BLOCS[derniere].draw()
+    BLOCS[derniere%3].draw()
 
     if Chrono_pour_touche == 0 and not PAUSE:
         if keys[pygame.K_LEFT]:
-            BLOCS[derniere].Left()      
+            BLOCS[derniere%3].Left()      
             Chrono_pour_touche = VITESSE_POUR_LES_TOUCHES
         if keys[pygame.K_RIGHT]: 
-            BLOCS[derniere].Right() 
+            BLOCS[derniere%3].Right() 
             Chrono_pour_touche = VITESSE_POUR_LES_TOUCHES
     if Chrono_pour_positions == 0 and not PAUSE:
-        if keys[pygame.K_UP] and not BLOCS[derniere].check_collision(0, 0, BLOCS[derniere].etat+1) and BLOCS[derniere].active:
-            BLOCS[derniere].etat += 1
+        if keys[pygame.K_UP] and not BLOCS[derniere%3].check_collision(0, 0, BLOCS[derniere%3].etat+1) and BLOCS[derniere%3].active:
+            BLOCS[derniere%3].etat += 1
             Chrono_pour_positions = VITESSE_POUR_LES_TOUCHES
 
     if Chrono % VITESSE_DE_JEU == 0 and not PAUSE:
-        BLOCS[derniere].update()
-        if not BLOCS[derniere].active:
+        BLOCS[derniere%3].update()
+        if not BLOCS[derniere%3].active:
             #time.sleep(0.075)
+            BLOCS[derniere%3] = None
             derniere += 1
             
             Chrono_pour_touche = 20
             
             yp = Adpater_y_pour_le_spawn(piece_possible[B])
-            BLOCS[derniere] = Pieces(4, yp, 0, piece_possible[B], couleurs_possibles[B])
+            BLOCS[derniere%3] = Pieces(4, yp, 0, piece_possible[B], couleurs_possibles[B])
             PETITE_GRILLE = [["0"] * 4 for i in range(4)]
             if nb_de_tour_sans_la_barre > 18:
                 B = 0
@@ -376,9 +381,9 @@ while run:
 
             for i in range(10):
                 if nb_total_lignes >= 10*(i+1) and nb_total_lignes < 10*(i+2):
-                    VITESSE_DE_JEU = 30 - 3*(i+1)
+                    VITESSE_DE_JEU = vitesse_de_depart - acceleration_du_jeu*(i+1)  
 
-            if BLOCS[derniere].check_collision(0, 0, BLOCS[derniere].etat):
+            if BLOCS[derniere%3].check_collision(0, 0, BLOCS[derniere%3].etat):
                 PAUSE = True
 
         for i in range(4): 
@@ -387,7 +392,7 @@ while run:
                     PETITE_GRILLE[u][i+1] = couleurs_possibles[B]
 
     if keys[pygame.K_DOWN] and not PAUSE:
-        BLOCS[derniere].update()
+        BLOCS[derniere%3].update()
                 ########## DESSIN ########################################################################
     screen.fill((100, 0, 215))    
     lim_grille_x1 = 17
@@ -467,7 +472,7 @@ while run:
         print("Y:", Y)
 
     if keys[pygame.K_a]:
-        BLOCS = [None] * 10000000
+        BLOCS = [None] * 3
         PAUSE = False
         GRILLE_FIXE = [["0"] * Y_G for i in range(X_G)]
         PETITE_GRILLE = [["0"] * 4 for i in range (4)]
@@ -477,7 +482,7 @@ while run:
         nb_total_lignes = 0
         score = 0
         yp = Adpater_y_pour_le_spawn(piece_possible[A])
-        BLOCS[derniere] = Pieces(4, yp, 0, piece_possible[A], couleurs_possibles[A])
+        BLOCS[derniere%3] = Pieces(4, yp, 0, piece_possible[A], couleurs_possibles[A])
         VITESSE_DE_JEU = 30
         B = -1
 
@@ -487,7 +492,7 @@ while run:
         Chrono_pour_touche -= 1
     if Chrono_pour_positions > 0:
         Chrono_pour_positions -= 1
-    if Chrono == 61:
+    if Chrono == 20000:
         Chrono = 1
     pygame.display.flip()
     clock.tick(60)
