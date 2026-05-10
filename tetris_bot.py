@@ -242,7 +242,7 @@ class Pieces:
                         return True
         return False
 
-    def update(self):
+    def update(self, grille):
         if self.check_collision(0, 1, self.etat):
                     self.active = False
                     for i in range(4):
@@ -251,7 +251,7 @@ class Pieces:
                                 X = self.x + u
                                 Y = self.y + i
                                 if Y >= 0:
-                                    GRILLE_FIXE[X][Y] = self.color
+                                    grille[X][Y] = self.color
         if self.active and not self.check_collision(0, 1, self.etat):            
             self.y += 1
         
@@ -262,19 +262,22 @@ class Pieces:
         if self.active and not self.check_collision(-1, 0, self.etat):
             self.x -= 1
 
-run = True
-BLOCS = [None]*100000000  # 10 M ca devrait suffir
-derniere = 0
-
 def Adpater_y_pour_le_spawn(piece_a_mettre_ensuite):
     if piece_a_mettre_ensuite == T or piece_a_mettre_ensuite == Barre:
         return 1
     else:
         return 2
 
+
+run = True
+BLOCS = [None]*3  
+derniere = 0
+
+
+
 A = randint(0, 6)
 yp = Adpater_y_pour_le_spawn(piece_possible[A])
-BLOCS[derniere] = Pieces(4, yp, 0, piece_possible[A], couleurs_possibles[A])
+BLOCS[derniere%3] = Pieces(4, yp, 0, piece_possible[A], couleurs_possibles[A])
 
 Chrono = 0
 Chrono_pour_touche = 0
@@ -296,43 +299,110 @@ nb_total_lignes = 0
 ok = False
 
 nb_de_tour_sans_la_barre = 0
+
+def simuler_et_noter(etat, x):
+    GRILLE_TEST = GRILLE_FIXE
+    BLOCS[derniere%3].update(GRILLE_TEST)
+    if not BLOCS[derniere%3].active:
+        #time.sleep(0.075)
+        BLOCS[derniere%3] = None
+        nb_lignes = 0
+        for i in range(Y_G):
+            ligne_complete = True
+            for u in range(X_G):
+                if GRILLE_FIXE[u][i] == "0":
+                    ligne_complete = False
+                    break
+            if ligne_complete:
+                nb_total_lignes += 1
+                nb_lignes += 1
+                time.sleep(0.01)
+                for u in range(X_G):
+                    GRILLE_FIXE[u][i] = "0"
+                for y in range(i, 0, -1):
+                    for u in range(X_G):
+                        GRILLE_FIXE[u][y] = GRILLE_FIXE[u][y-1]
+                for u in range(X_G):
+                    GRILLE_FIXE[u][0] = "0" 
+                GRILLE = [row[:] for row in GRILLE_FIXE]
+        if nb_lignes == 1:
+            score += 40
+        elif nb_lignes == 2:
+            score += 100
+        elif nb_lignes == 3:
+            score += 300
+        elif nb_lignes == 4:
+            score += 1200
+        nb_lignes = 0
+        for i in range(10):
+            if nb_total_lignes >= 10*(i+1) and nb_total_lignes < 10*(i+2):
+                VITESSE_DE_JEU = vitesse_de_depart - acceleration_du_jeu*(i+1)  
+        if BLOCS[derniere%3].check_collision(0, 0, BLOCS[derniere%3].etat):
+            PAUSE = True
+
+def trouver_les_trous(grille):
+    nb_total = 0
+    for i in range(X_G):
+        colonne = True
+        for u in range(Y_G):
+            if grille[i][u] != "0":
+                colonne = False
+            if not colonne:
+                if grille[i][u] == "0":
+                    nb_total += 1
+    coordonnee_des_trous = [0]*nb_total
+    y = 0
+    for i in range(X_G):
+            colonne = True
+            for u in range(Y_G):
+                if grille[i][u] != "0":
+                    colonne = False
+                if not colonne:
+                    if grille[i][u] == "0":
+                        coordonnee_des_trous[y] = (i, u)
+                        y += 1
+    return coordonnee_des_trous
+
 ################################################################################################################
 while run:
+    POSITIONS_POSSIBLES = [None] * 40
+    NOTES_POSITIONS_POSSIBLES = [None] * 40
+
+    keys = pygame.key.get_pressed()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
-
-    if B == -1:
-        B = randint(0, len(piece_possible)-1)
-    keys = pygame.key.get_pressed()
     if keys[pygame.K_r]:  # pour arrêter la boucle avec la touche 'r'
         run = False
 
+    if B == -1:
+        B = randint(0, len(piece_possible)-1)
     GRILLE = [row[:] for row in GRILLE_FIXE]
-    BLOCS[derniere].draw()
-
-    if Chrono_pour_touche == 0 and not PAUSE:
-        if keys[pygame.K_LEFT]:
-            BLOCS[derniere].Left()      
-            Chrono_pour_touche = VITESSE_POUR_LES_TOUCHES
-        if keys[pygame.K_RIGHT]: 
-            BLOCS[derniere].Right() 
-            Chrono_pour_touche = VITESSE_POUR_LES_TOUCHES
-    if Chrono_pour_positions == 0 and not PAUSE:
-        if keys[pygame.K_UP] and not BLOCS[derniere].check_collision(0, 0, BLOCS[derniere].etat+1) and BLOCS[derniere].active:
-            BLOCS[derniere].etat += 1
-            Chrono_pour_positions = VITESSE_POUR_LES_TOUCHES
+    BLOCS[derniere%3].draw()
+    S = trouver_les_trous(GRILLE_FIXE)
+    print(len(S))
+    if not PAUSE:
+        colonne_qu_on_veut = 10
+        if BLOCS[derniere%3].x > colonne_qu_on_veut:
+            BLOCS[derniere%3].Left()      
+        if BLOCS[derniere%3].x < colonne_qu_on_veut: 
+            BLOCS[derniere%3].Right() 
+    if not PAUSE:
+        if keys[pygame.K_UP] and not BLOCS[derniere%3].check_collision(0, 0, BLOCS[derniere%3].etat+1) and BLOCS[derniere%3].active:
+            BLOCS[derniere%3].etat += 1
 
     if Chrono % VITESSE_DE_JEU == 0 and not PAUSE:
-        BLOCS[derniere].update()
-        if not BLOCS[derniere].active:
+        BLOCS[derniere%3].update(GRILLE_FIXE)
+        if not BLOCS[derniere%3].active:
+            
+
+
             #time.sleep(0.075)
+            BLOCS[derniere%3] = None
             derniere += 1
-            
             Chrono_pour_touche = 20
-            
             yp = Adpater_y_pour_le_spawn(piece_possible[B])
-            BLOCS[derniere] = Pieces(4, yp, 0, piece_possible[B], couleurs_possibles[B])
+            BLOCS[derniere%3] = Pieces(4, yp, 0, piece_possible[B], couleurs_possibles[B])
             PETITE_GRILLE = [["0"] * 4 for i in range(4)]
             if nb_de_tour_sans_la_barre > 18:
                 B = 0
@@ -340,30 +410,24 @@ while run:
             else:
                 B = randint(0, len(piece_possible)-1)
                 nb_de_tour_sans_la_barre += 1
-
             nb_lignes = 0
             for i in range(Y_G):
                 ligne_complete = True
-
                 for u in range(X_G):
                     if GRILLE_FIXE[u][i] == "0":
                         ligne_complete = False
                         break
-
                 if ligne_complete:
                     nb_total_lignes += 1
                     nb_lignes += 1
                     time.sleep(0.01)
                     for u in range(X_G):
                         GRILLE_FIXE[u][i] = "0"
-
                     for y in range(i, 0, -1):
                         for u in range(X_G):
                             GRILLE_FIXE[u][y] = GRILLE_FIXE[u][y-1]
-
                     for u in range(X_G):
-                        GRILLE_FIXE[u][0] = "0"
-                    
+                        GRILLE_FIXE[u][0] = "0" 
                     GRILLE = [row[:] for row in GRILLE_FIXE]
             if nb_lignes == 1:
                 score += 40
@@ -379,7 +443,7 @@ while run:
                 if nb_total_lignes >= 10*(i+1) and nb_total_lignes < 10*(i+2):
                     VITESSE_DE_JEU = vitesse_de_depart - acceleration_du_jeu*(i+1)  
 
-            if BLOCS[derniere].check_collision(0, 0, BLOCS[derniere].etat):
+            if BLOCS[derniere%3].check_collision(0, 0, BLOCS[derniere%3].etat):
                 PAUSE = True
 
         for i in range(4): 
@@ -388,7 +452,7 @@ while run:
                     PETITE_GRILLE[u][i+1] = couleurs_possibles[B]
 
     if keys[pygame.K_DOWN] and not PAUSE:
-        BLOCS[derniere].update()
+        BLOCS[derniere%3].update(GRILLE_FIXE)
                 ########## DESSIN ########################################################################
     screen.fill((100, 0, 215))    
     lim_grille_x1 = 17
@@ -468,7 +532,7 @@ while run:
         print("Y:", Y)
 
     if keys[pygame.K_a]:
-        BLOCS = [None] * 10000000
+        BLOCS = [None] * 3
         PAUSE = False
         GRILLE_FIXE = [["0"] * Y_G for i in range(X_G)]
         PETITE_GRILLE = [["0"] * 4 for i in range (4)]
@@ -478,11 +542,11 @@ while run:
         nb_total_lignes = 0
         score = 0
         yp = Adpater_y_pour_le_spawn(piece_possible[A])
-        BLOCS[derniere] = Pieces(4, yp, 0, piece_possible[A], couleurs_possibles[A])
+        BLOCS[derniere%3] = Pieces(4, yp, 0, piece_possible[A], couleurs_possibles[A])
         VITESSE_DE_JEU = 30
         B = -1
 
-
+    
     Chrono += 1
     if Chrono_pour_touche > 0:
         Chrono_pour_touche -= 1
