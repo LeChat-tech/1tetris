@@ -361,6 +361,8 @@ def trouver_les_trous(grille):
                     if grille[i][u] == "0":
                         coordonnee_des_trous[y] = (i, u)
                         y += 1
+    
+    nb_de_colonne_avec_trou = None
     return coordonnee_des_trous
 
 ################################################################################################################
@@ -380,7 +382,7 @@ while run:
     GRILLE = [row[:] for row in GRILLE_FIXE]
     BLOCS[derniere%3].draw()
     S = trouver_les_trous(GRILLE_FIXE)
-    print(len(S))
+
     if not PAUSE:
         colonne_qu_on_veut = 10
         if BLOCS[derniere%3].x > colonne_qu_on_veut:

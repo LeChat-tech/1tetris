@@ -476,7 +476,7 @@ while run:
         PAUSE = False
         GRILLE_FIXE = [["0"] * Y_G for i in range(X_G)]
         PETITE_GRILLE = [["0"] * 4 for i in range (4)]
-        derniere = 0
+        derniere = 0    
         A = randint(0, len(piece_possible)-1)
         Chrono_pour_touche = 20
         nb_total_lignes = 0
